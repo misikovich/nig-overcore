@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>нигга оверкор</title>
+<style>
+  :root{
+    --bg:#0b0b0d;
+    --fg:#f2f2f2;
+    --muted:#9a9aa2;
+    --red:#e0231c;
+    --red-dark:#8f120d;
+    --border:#26262c;
+    --surface:#141418;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--fg);
+    font-family:"Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 35%, rgba(224,35,28,.18), transparent 70%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.02) 0 1px, transparent 1px 4px);
+    pointer-events:none;
+    z-index:0;
+  }
+  .wrap{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
+
+  /* header */
+  header{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:22px 32px;border-bottom:1px solid var(--border);
+    font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);
+  }
+  header strong{color:var(--fg);font-weight:800}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-right:8px;vertical-align:1px}
+
+  /* hero */
+  main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px 64px;text-align:center}
+  .portrait{
+    width:min(340px,72vw);
+    transform-origin:50% 100%;
+    animation:squash .55s cubic-bezier(.36,.07,.19,.97) infinite alternate;
+  }
+  /* сплющивание: растягивается и сжимается по обеим осям */
+  @keyframes squash{
+    0%   {transform:scaleX(1.34) scaleY(.68) translateY(6px)}
+    25%  {transform:scaleX(.74) scaleY(1.3) translateY(-4px)}
+    50%  {transform:scaleX(1.22) scaleY(.8) translateY(3px)}
+    75%  {transform:scaleX(.86) scaleY(1.16) translateY(-2px)}
+    100% {transform:scaleX(1) scaleY(1) translateY(0)}
+  }
+  /* цвет: крутится по спектру поверх красного */
+  .portrait .hue{animation:hue 3.2s linear infinite}
+  @keyframes hue{
+    0%{filter:hue-rotate(0deg) saturate(1.5) brightness(1.1)}
+    25%{filter:hue-rotate(90deg) saturate(1.8) brightness(1.2)}
+    50%{filter:hue-rotate(180deg) saturate(1.6) brightness(1.05)}
+    75%{filter:hue-rotate(270deg) saturate(1.9) brightness(1.25)}
+    100%{filter:hue-rotate(360deg) saturate(1.5) brightness(1.1)}
+  }
+  .nug-layer{
+    position:absolute;inset:0;pointer-events:none;overflow:visible;
+  }
+  .nug-layer .fly{
+    position:absolute;width:34px;height:30px;
+    will-change:transform,opacity;
+    filter:drop-shadow(0 4px 8px rgba(0,0,0,.6));
+  }
+  .nug-layer .fly svg{display:block;width:100%;height:100%}
+  /* рот открывается, когда наггетс подлетает */
+  .mouth{transform-box:fill-box;transform-origin:50% 0%;transition:transform .09s ease-out}
+  .mouth.open{transform:scaleY(3.1)}
+  .nug-layer .crumbs{
+    position:absolute;width:5px;height:5px;border-radius:50%;
+    background:#e0a63c;pointer-events:none;
+  }
+  .stage{
+    position:relative;
+    filter:drop-shadow(0 30px 60px rgba(224,35,28,.25));
+  }
+  /* пульс цвета у заголовка в такт персонажу */
+  h1 span{animation:titlePulse 3.2s linear infinite}
+  @keyframes titlePulse{
+    0%,100%{color:var(--red);text-shadow:0 0 40px rgba(224,35,28,.45)}
+    50%{color:#ffb020;text-shadow:0 0 50px rgba(255,176,32,.5)}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .portrait,.portrait .hue,h1 span{animation:none}
+  }
+
+  /* scene: приора + бассуха */
+  .scene{
+    width:min(760px,94vw);margin:52px auto 0;
+    border:1px solid var(--border);background:var(--surface);
+  }
+  .scene-head{
+    display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:12px 16px;border-bottom:1px solid var(--border);
+    font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);
+  }
+  .scene-head b{color:var(--fg)}
+  .scene svg{display:block;width:100%;height:auto}
+
+  /* nuggets */
+  .nuggets{
+    margin:52px auto 0;width:min(760px,94vw);
+    display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
+  }
+  .nug{
+    border:1px solid var(--border);background:var(--surface);
+    padding:18px 16px;display:flex;flex-direction:column;align-items:center;gap:12px;
+    transition:transform .2s ease,border-color .2s ease;
+  }
+  .nug:hover{transform:translateY(-4px);border-color:#c98a1e}
+  .nug svg{width:100%;max-width:150px;height:auto;filter:drop-shadow(0 8px 16px rgba(0,0,0,.5))}
+  .nug b{font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+  .nug small{color:var(--muted);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+  @media (max-width:560px){.nuggets{grid-template-columns:1fr}}
+
+  h1{
+    margin:28px 0 0;
+    font-size:clamp(38px,9vw,96px);
+    line-height:.92;
+    letter-spacing:-.04em;
+    font-weight:900;
+    text-transform:uppercase;
+  }
+  h1 span{display:block;color:var(--red);text-shadow:0 0 40px rgba(224,35,28,.45)}
+  .sub{
+    margin:18px 0 0;color:var(--muted);
+    font-size:clamp(13px,2vw,16px);letter-spacing:.22em;text-transform:uppercase;
+  }
+  .tagline{
+    max-width:560px;margin:26px auto 0;line-height:1.6;color:#c9c9d1;font-size:16px;
+  }
+
+  /* stats */
+  .stats{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+    background:var(--border);border:1px solid var(--border);
+    margin:44px auto 0;max-width:720px;width:100%;
+  }
+  .stats div{background:var(--surface);padding:22px 16px}
+  .stats b{display:block;font-size:clamp(22px,4vw,34px);font-weight:900;letter-spacing:-.02em}
+  .stats small{display:block;margin-top:6px;color:var(--muted);font-size:11px;letter-spacing:.16em;text-transform:uppercase}
+
+  /* cta */
+  .cta{
+    display:inline-flex;align-items:center;gap:10px;margin-top:40px;
+    padding:16px 30px;background:var(--red);color:#fff;text-decoration:none;
+    font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:13px;
+    border:1px solid #ff5a52;
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+    box-shadow:0 0 0 rgba(224,35,28,0);
+  }
+  .cta:hover{background:#f02a22;transform:translateY(-2px);box-shadow:0 12px 30px rgba(224,35,28,.35)}
+  .cta:active{transform:translateY(0)}
+
+  footer{
+    border-top:1px solid var(--border);padding:18px 32px;
+    display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+  }
+  @media (max-width:560px){
+    header{padding:16px 20px;font-size:10px}
+    footer{padding:16px 20px;font-size:10px}
+    .stats{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span><span class="dot"></span><strong>нигга&nbsp;оверкор</strong></span>
+    <span>est. 2026 &middot; street division</span>
+  </header>
+
+  <main>
+    <div class="stage" id="stage">
+    <svg class="portrait" viewBox="0 0 300 420" role="img" aria-label="Чувак в чёрной шапке Adidas, красной петушиной куртке с перьями и кроссовках Nike">
+      <g class="hue">
+      <!-- shadow -->
+      <ellipse cx="150" cy="404" rx="86" ry="12" fill="#000" opacity=".55"/>
+
+      <!-- legs -->
+      <rect x="112" y="268" width="30" height="92" rx="6" fill="#15151a"/>
+      <rect x="158" y="268" width="30" height="92" rx="6" fill="#15151a"/>
+      <!-- socks -->
+      <rect x="112" y="352" width="30" height="14" fill="#f2f2f2"/>
+      <rect x="158" y="352" width="30" height="14" fill="#f2f2f2"/>
+
+      <!-- sneakers (Nike) -->
+      <g>
+        <path d="M104 372 h44 q6 0 8 6 l4 12 q2 8 -6 8 h-52 q-8 0 -8 -8 v-6 q0 -12 10 -12z" fill="#f2f2f2"/>
+        <path d="M104 392 h56 q0 8 -8 8 h-48 q-8 0 -8 -8z" fill="#d8d8d8"/>
+        <path d="M118 380 q14 8 30 2" stroke="#e0231c" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M152 372 h44 q6 0 8 6 l4 12 q2 8 -6 8 h-52 q-8 0 -8 -8 v-6 q0 -12 10 -12z" fill="#f2f2f2" transform="translate(-4 0)"/>
+        <path d="M148 392 h56 q0 8 -8 8 h-48 q-8 0 -8 -8z" fill="#d8d8d8" transform="translate(-4 0)"/>
+        <path d="M162 380 q14 8 30 2" stroke="#e0231c" stroke-width="3" fill="none" stroke-linecap="round"/>
+      </g>
+
+      <!-- ===== rooster jacket ===== -->
+      <defs>
+        <!-- single feather: shaft + vane -->
+        <g id="feather">
+          <path d="M0 0 q-5 -12 0 -24 q5 12 0 24z" fill="#e0231c"/>
+          <path d="M0 -2 v-18" stroke="#8f120d" stroke-width="1.6" stroke-linecap="round"/>
+        </g>
+        <!-- drooping hackle feather -->
+        <g id="hackle">
+          <path d="M0 0 q-7 10 -4 22 q9 -4 4 -22z" fill="#f04a42"/>
+          <path d="M0 1 q-2 10 0 18" stroke="#a3140e" stroke-width="1.2" stroke-linecap="round"/>
+        </g>
+      </defs>
+
+      <!-- ruffled silhouette: feathers poking out of the outline -->
+      <g opacity=".95">
+        <!-- left flank -->
+        <use href="#hackle" x="84" y="160" transform="rotate(18 84 160)"/>
+        <use href="#hackle" x="80" y="184" transform="rotate(10 80 184)"/>
+        <use href="#hackle" x="80" y="208" transform="rotate(4 80 208)"/>
+        <use href="#hackle" x="84" y="232" transform="rotate(-4 84 232)"/>
+        <!-- right flank -->
+        <use href="#hackle" x="216" y="160" transform="rotate(-18 216 160)"/>
+        <use href="#hackle" x="220" y="184" transform="rotate(-10 220 184)"/>
+        <use href="#hackle" x="220" y="208" transform="rotate(-4 220 208)"/>
+        <use href="#hackle" x="216" y="232" transform="rotate(4 216 232)"/>
+        <!-- bottom hem -->
+        <use href="#hackle" x="112" y="256" transform="rotate(6 112 256)"/>
+        <use href="#hackle" x="128" y="258" transform="rotate(3 128 258)"/>
+        <use href="#hackle" x="150" y="260"/>
+        <use href="#hackle" x="172" y="258" transform="rotate(-3 172 258)"/>
+        <use href="#hackle" x="188" y="256" transform="rotate(-6 188 256)"/>
+      </g>
+
+      <!-- body of the jacket -->
+      <path d="M86 150 q0 -22 22 -28 l42 -10 42 10 q22 6 22 28 v92 q0 16 -16 18 l-96 0 q-16 -2 -16 -18z" fill="#e0231c"/>
+      <!-- feather rows on the chest -->
+      <g opacity=".92">
+        <use href="#feather" x="104" y="156"/><use href="#feather" x="120" y="150"/><use href="#feather" x="136" y="147"/>
+        <use href="#feather" x="164" y="147"/><use href="#feather" x="180" y="150"/><use href="#feather" x="196" y="156"/>
+        <use href="#feather" x="98" y="182" transform="rotate(8 98 182)"/><use href="#feather" x="114" y="176"/>
+        <use href="#feather" x="130" y="172"/><use href="#feather" x="170" y="172"/><use href="#feather" x="186" y="176"/>
+        <use href="#feather" x="202" y="182" transform="rotate(-8 202 182)"/>
+        <use href="#feather" x="104" y="208" transform="rotate(6 104 208)"/><use href="#feather" x="122" y="202"/>
+        <use href="#feather" x="178" y="202"/><use href="#feather" x="196" y="208" transform="rotate(-6 196 208)"/>
+        <use href="#feather" x="110" y="234" transform="rotate(4 110 234)"/><use href="#feather" x="190" y="234" transform="rotate(-4 190 234)"/>
+      </g>
+      <!-- sheen -->
+      <path d="M86 150 q0 -22 22 -28 l42 -10 42 10 q22 6 22 28 v10 q-64 18 -128 0z" fill="#f04a42" opacity=".45"/>
+
+      <!-- zipper -->
+      <rect x="146" y="124" width="8" height="130" fill="#b3170f"/>
+      <rect x="148" y="124" width="4" height="130" fill="#ff6a62" opacity=".6"/>
+
+      <!-- hackle collar: comb of upright feathers around the neck -->
+      <g>
+        <use href="#hackle" x="126" y="132" transform="rotate(-38 126 132)"/>
+        <use href="#hackle" x="138" y="130" transform="rotate(-20 138 130)"/>
+        <use href="#hackle" x="150" y="129" transform="rotate(-4 150 129)"/>
+        <use href="#hackle" x="162" y="130" transform="rotate(20 162 130)"/>
+        <use href="#hackle" x="174" y="132" transform="rotate(38 174 132)"/>
+      </g>
+      <path d="M126 122 q24 16 48 0 l4 14 q-28 16 -56 0z" fill="#8f120d"/>
+
+      <!-- pockets -->
+      <path d="M104 214 h26" stroke="#8f120d" stroke-width="4" stroke-linecap="round"/>
+      <path d="M170 214 h26" stroke="#8f120d" stroke-width="4" stroke-linecap="round"/>
+
+      <!-- sleeves -->
+      <path d="M86 150 q-16 6 -18 26 l-6 62 q-2 12 10 12 h10 q10 0 10 -12 l4 -60z" fill="#c91d16"/>
+      <path d="M214 150 q16 6 18 26 l6 62 q2 12 -10 12 h-10 q-10 0 -10 -12 l-4 -60z" fill="#c91d16"/>
+      <!-- flight feathers hanging off the sleeves -->
+      <g>
+        <use href="#feather" x="70" y="196" transform="rotate(-22 70 196)"/>
+        <use href="#feather" x="66" y="216" transform="rotate(-14 66 216)"/>
+        <use href="#feather" x="64" y="236" transform="rotate(-6 64 236)"/>
+        <use href="#feather" x="230" y="196" transform="rotate(22 230 196)"/>
+        <use href="#feather" x="234" y="216" transform="rotate(14 234 216)"/>
+        <use href="#feather" x="236" y="236" transform="rotate(6 236 236)"/>
+        <!-- adidas 3 stripes still on the sleeve -->
+        <g stroke="#f2f2f2" stroke-width="4" stroke-linecap="round" opacity=".9">
+          <path d="M92 170 l0 34"/><path d="M100 168 l0 34"/><path d="M108 166 l0 34"/>
+          <path d="M208 170 l0 34"/><path d="M200 168 l0 34"/><path d="M192 166 l0 34"/>
+        </g>
+      </g>
+      <!-- hands -->
+      <circle cx="76" cy="256" r="12" fill="#8d5a3c"/>
+      <circle cx="224" cy="256" r="12" fill="#8d5a3c"/>
+
+      <!-- head -->
+      <rect x="132" y="86" width="36" height="26" rx="8" fill="#8d5a3c"/>
+      <ellipse cx="150" cy="76" rx="42" ry="46" fill="#a06a48"/>
+      <!-- ears -->
+      <ellipse cx="108" cy="78" rx="7" ry="11" fill="#8d5a3c"/>
+      <ellipse cx="192" cy="78" rx="7" ry="11" fill="#8d5a3c"/>
+      <!-- eyes -->
+      <ellipse cx="134" cy="74" rx="5.5" ry="4.5" fill="#1a1a1a"/>
+      <ellipse cx="166" cy="74" rx="5.5" ry="4.5" fill="#1a1a1a"/>
+      <circle cx="135.5" cy="72.5" r="1.6" fill="#fff" opacity=".8"/>
+      <circle cx="167.5" cy="72.5" r="1.6" fill="#fff" opacity=".8"/>
+      <!-- brows -->
+      <path d="M126 64 q8 -4 16 0" stroke="#1a1a1a" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M158 64 q8 -4 16 0" stroke="#1a1a1a" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <!-- nose -->
+      <path d="M150 78 q-4 10 2 13" stroke="#7a4a30" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <!-- mouth -->
+      <path class="mouth" id="mouth" d="M138 100 q12 8 24 0" stroke="#5c3320" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+      <!-- beanie (black adidas) -->
+      <path d="M106 62 q0 -44 44 -44 q44 0 44 44 v10 q-44 -14 -88 0z" fill="#111114"/>
+      <path d="M106 62 q44 -14 88 0 v12 q-44 -12 -88 0z" fill="#1d1d22"/>
+      <!-- adidas stripes on beanie -->
+      <g stroke="#f2f2f2" stroke-width="4" stroke-linecap="round" opacity=".9">
+        <path d="M140 26 q-4 14 -4 26"/>
+        <path d="M150 22 q-2 16 -2 30"/>
+        <path d="M160 26 q4 14 4 26"/>
+      </g>
+      <!-- pom -->
+      <circle cx="150" cy="14" r="9" fill="#22222a"/>
+      </g>
+    </svg>
+    <div class="nug-layer" id="nugLayer" aria-hidden="true"></div>
+    </div>
+
+    <h1>нигга<span>оверкор</span></h1>
+    <p class="sub">street legend &middot; adidas &middot; nike</p>
+    <p class="tagline">
+      Чёрная шапка Adidas, красная петушиная куртка с перьями, кроссовки Nike.
+      Человек, который перегружает систему одним своим видом.
+    </p>
+
+    <div class="stats">
+      <div><b>∞</b><small>оверкор</small></div>
+      <div><b>3</b><small>полоски</small></div>
+      <div><b>1</b><small>легенда</small></div>
+    </div>
+
+    <a class="cta" href="#top">оверкороть</a>
+
+    <!-- приора + бассуха -->
+    <section class="scene" aria-label="Чёрная Приора с бассухой">
+      <div class="scene-head">
+        <span><b>приора</b> &middot; чёрная &middot; тонированная</span>
+        <span>бассуха: <b>2 &times; 15&quot;</b> &middot; 140 дБ</span>
+      </div>
+      <svg viewBox="0 0 760 300" role="img" aria-label="Чёрная Лада Приора с открытым багажником и двумя сабвуферами">
+        <defs>
+          <linearGradient id="carBody" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#3a3a44"/>
+            <stop offset=".45" stop-color="#17171c"/>
+            <stop offset="1" stop-color="#0a0a0d"/>
+          </linearGradient>
+          <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#2c3a48"/>
+            <stop offset="1" stop-color="#0d1116"/>
+          </linearGradient>
+          <radialGradient id="cone" cx=".5" cy=".5" r=".5">
+            <stop offset="0" stop-color="#4a4a55"/>
+            <stop offset=".55" stop-color="#1a1a20"/>
+            <stop offset="1" stop-color="#050507"/>
+          </radialGradient>
+          <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#d8d8e0"/>
+            <stop offset="1" stop-color="#7a7a86"/>
+          </linearGradient>
+          <g id="wheel">
+            <circle r="34" fill="#0d0d10"/>
+            <circle r="27" fill="url(#rim)"/>
+            <circle r="19" fill="#1a1a20"/>
+            <g stroke="#c9c9d2" stroke-width="3" stroke-linecap="round">
+              <path d="M0 -17 V17"/><path d="M-15 -8 L15 8"/><path d="M-15 8 L15 -8"/>
+            </g>
+            <circle r="5" fill="#c9c9d2"/>
+          </g>
+          <g id="speaker">
+            <circle r="30" fill="#0b0b0e" stroke="#3d3d47" stroke-width="3"/>
+            <circle r="23" fill="url(#cone)"/>
+            <circle r="12" fill="#26262e"/>
+            <circle r="5" fill="#0a0a0c"/>
+            <circle cx="-9" cy="-9" r="2.5" fill="#5a5a66"/>
+            <circle cx="9" cy="9" r="2.5" fill="#5a5a66"/>
+            <circle cx="9" cy="-9" r="2.5" fill="#5a5a66"/>
+            <circle cx="-9" cy="9" r="2.5" fill="#5a5a66"/>
+          </g>
+        </defs>
+
+        <!-- ground -->
+        <ellipse cx="380" cy="262" rx="330" ry="16" fill="#000" opacity=".55"/>
+
+        <!-- sound waves from the trunk -->
+        <g stroke="#e0231c" fill="none" stroke-linecap="round" opacity=".7">
+          <path d="M636 118 q22 -10 22 -30" stroke-width="3"/>
+          <path d="M650 128 q40 -18 40 -54" stroke-width="2.5" opacity=".7"/>
+          <path d="M664 138 q58 -26 58 -78" stroke-width="2" opacity=".45"/>
+        </g>
+
+        <!-- car body -->
+        <path d="M70 214
+                 q0 -22 22 -30 l52 -14 q16 -4 26 -18 l34 -40 q10 -12 28 -12 h150 q18 0 28 12 l34 40 q10 14 26 18 l52 14 q22 8 22 30
+                 v18 q0 10 -10 10 h-454 q-10 0 -10 -10z" fill="url(#carBody)"/>
+        <!-- roof highlight -->
+        <path d="M206 152 l34 -40 q10 -12 28 -12 h150 q18 0 28 12 l34 40z" fill="#22222a" opacity=".6"/>
+        <!-- windows -->
+        <path d="M216 148 l30 -34 q6 -8 18 -8 h52 v42z" fill="url(#glass)"/>
+        <path d="M330 148 v-42 h52 q12 0 18 8 l30 34z" fill="url(#glass)"/>
+        <path d="M186 158 l24 -10 v-6 l-30 8z" fill="#0a0a0d" opacity=".5"/>
+        <!-- door lines -->
+        <path d="M300 158 v66" stroke="#000" stroke-width="2" opacity=".55"/>
+        <path d="M420 158 v66" stroke="#000" stroke-width="2" opacity=".55"/>
+        <!-- handles -->
+        <rect x="318" y="182" width="22" height="5" rx="2.5" fill="#5a5a66"/>
+        <rect x="392" y="182" width="22" height="5" rx="2.5" fill="#5a5a66"/>
+        <!-- rocker / skirt shadow -->
+        <path d="M80 232 h452 q0 10 -10 10 h-432 q-10 0 -10 -10z" fill="#000" opacity=".55"/>
+
+        <!-- headlight & taillight -->
+        <path d="M70 196 q-4 -14 14 -20 l22 -6 v26z" fill="#e8e8ef" opacity=".85"/>
+        <path d="M532 196 q4 -14 -14 -20 l-22 -6 v26z" fill="#e0231c"/>
+        <!-- grille -->
+        <rect x="74" y="206" width="34" height="10" rx="3" fill="#0a0a0d"/>
+
+        <!-- open trunk lid -->
+        <path d="M534 176 l58 -6 q14 -2 16 10 l6 46 q2 12 -12 12 l-66 -4z" fill="#1d1d24"/>
+        <path d="M540 180 l50 -5 q8 -1 9 6 l4 34" stroke="#3a3a44" stroke-width="2" fill="none"/>
+        <!-- trunk cavity -->
+        <path d="M534 176 h92 v72 h-92z" fill="#050507" opacity=".9"/>
+
+        <!-- bass box inside the trunk -->
+        <rect x="548" y="196" width="72" height="52" rx="4" fill="#121216" stroke="#2e2e38" stroke-width="2"/>
+        <use href="#speaker" x="572" y="222" transform="scale(.72) translate(222 86)"/>
+        <use href="#speaker" x="596" y="222" transform="scale(.72) translate(232 86)"/>
+        <!-- port -->
+        <rect x="600" y="238" width="14" height="8" rx="3" fill="#000"/>
+
+        <!-- wheels -->
+        <use href="#wheel" x="176" y="232"/>
+        <use href="#wheel" x="452" y="232"/>
+
+        <!-- plate -->
+        <rect x="472" y="214" width="46" height="14" rx="2" fill="#f2f2f2"/>
+        <text x="495" y="225" font-family="Arial" font-size="9" font-weight="700" text-anchor="middle" fill="#111">О 777 ОО</text>
+      </svg>
+    </section>
+
+    <!-- nuggets -->
+    <section class="nuggets" aria-label="Наггетсы">
+      <div class="nug">
+        <svg viewBox="0 0 120 100" role="img" aria-label="Наггетс">
+          <defs>
+            <linearGradient id="nugG" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#f2b95c"/>
+              <stop offset="1" stop-color="#b8761f"/>
+            </linearGradient>
+          </defs>
+          <ellipse cx="60" cy="88" rx="34" ry="6" fill="#000" opacity=".5"/>
+          <path d="M24 58 q-2 -18 14 -24 q10 -16 28 -10 q20 -4 26 14 q14 8 6 22 q-4 14 -18 12 q-14 10 -28 2 q-18 6 -28 -16z" fill="url(#nugG)"/>
+          <path d="M32 50 q6 -12 20 -14 q14 -4 24 4" stroke="#ffe0a3" stroke-width="4" fill="none" stroke-linecap="round" opacity=".6"/>
+          <g fill="#8a5413" opacity=".8">
+            <circle cx="46" cy="58" r="2"/><circle cx="62" cy="48" r="2"/><circle cx="76" cy="60" r="2"/>
+            <circle cx="54" cy="68" r="2"/><circle cx="70" cy="70" r="2"/>
+          </g>
+        </svg>
+        <b>наггетс</b><small>6 шт &middot; соус</small>
+      </div>
+      <div class="nug">
+        <svg viewBox="0 0 120 100" role="img" aria-label="Наггетс">
+          <ellipse cx="60" cy="88" rx="34" ry="6" fill="#000" opacity=".5"/>
+          <path d="M22 60 q0 -20 16 -24 q8 -14 26 -12 q18 -2 26 12 q14 6 10 22 q-2 14 -16 14 q-12 8 -26 4 q-16 6 -26 -4 q-12 -2 -10 -12z" fill="url(#nugG)"/>
+          <path d="M32 52 q8 -14 22 -14 q14 -2 22 6" stroke="#ffe0a3" stroke-width="4" fill="none" stroke-linecap="round" opacity=".6"/>
+          <g fill="#8a5413" opacity=".8">
+            <circle cx="48" cy="62" r="2"/><circle cx="64" cy="52" r="2"/><circle cx="74" cy="66" r="2"/>
+            <circle cx="58" cy="72" r="2"/>
+          </g>
+        </svg>
+        <b>наггетс</b><small>9 шт &middot; острый</small>
+      </div>
+      <div class="nug">
+        <svg viewBox="0 0 120 100" role="img" aria-label="Наггетс">
+          <ellipse cx="60" cy="88" rx="34" ry="6" fill="#000" opacity=".5"/>
+          <path d="M26 56 q-4 -16 10 -22 q6 -16 24 -14 q18 -6 28 8 q16 4 12 20 q2 16 -12 18 q-12 10 -28 6 q-16 8 -28 0 q-12 -2 -6 -16z" fill="url(#nugG)"/>
+          <path d="M34 48 q8 -12 22 -12 q14 0 22 8" stroke="#ffe0a3" stroke-width="4" fill="none" stroke-linecap="round" opacity=".6"/>
+          <g fill="#8a5413" opacity=".8">
+            <circle cx="44" cy="60" r="2"/><circle cx="60" cy="50" r="2"/><circle cx="72" cy="62" r="2"/>
+            <circle cx="52" cy="70" r="2"/><circle cx="68" cy="72" r="2"/>
+          </g>
+        </svg>
+        <b>наггетс</b><small>20 шт &middot; ведро</small>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>© 2026 нигга оверкор</span>
+    <span>сделано с уважением</span>
+  </footer>
+</div>
+<script>
+(function(){
+  const stage = document.getElementById('stage');
+  const layer = document.getElementById('nugLayer');
+  const mouth = document.getElementById('mouth');
+  const portrait = stage.querySelector('.portrait');
+  if (!stage || !layer || !mouth || !portrait) return;
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const NUG_SVG = '<svg viewBox="0 0 120 100"><ellipse cx="60" cy="88" rx="34" ry="6" fill="#000" opacity=".45"/>'
+    + '<path d="M24 58 q-2 -18 14 -24 q10 -16 28 -10 q20 -4 26 14 q14 8 6 22 q-4 14 -18 12 q-14 10 -28 2 q-18 6 -28 -16z" fill="#e0a63c"/>'
+    + '<path d="M32 50 q6 -12 20 -14 q14 -4 24 4" stroke="#ffe0a3" stroke-width="4" fill="none" stroke-linecap="round" opacity=".65"/>'
+    + '<g fill="#8a5413" opacity=".8"><circle cx="46" cy="58" r="2"/><circle cx="62" cy="48" r="2"/><circle cx="76" cy="60" r="2"/><circle cx="54" cy="68" r="2"/></g></svg>';
+
+  const W = 34, H = 30;
+  const rand = (a, b) => a + Math.random() * (b - a);
+
+  /* mouth centre in stage-local CSS px, read live from the DOM so the
+     squash animation's scaleX/scaleY is already baked into the rect */
+  function mouthPoint(){
+    const sr = stage.getBoundingClientRect();
+    const mr = mouth.getBoundingClientRect();
+    return {
+      x: mr.left - sr.left + mr.width / 2,
+      y: mr.top - sr.top + mr.height / 2,
+      r: Math.max(10, mr.height)
+    };
+  }
+
+  function crumb(x, y){
+    const c = document.createElement('span');
+    c.className = 'crumbs';
+    c.style.left = x + 'px';
+    c.style.top = y + 'px';
+    layer.appendChild(c);
+    const dx = rand(-60, 60), dy = rand(-40, 70);
+    c.animate(
+      [{ transform: 'translate(0,0) scale(1)', opacity: 1 },
+       { transform: `translate(${dx}px,${dy}px) scale(.3)`, opacity: 0 }],
+      { duration: rand(380, 620), easing: 'cubic-bezier(.2,.7,.3,1)' }
+    ).onfinish = () => c.remove();
+  }
+
+  function fly(){
+    if (reduced.matches || document.hidden) return;
+    const sr = stage.getBoundingClientRect();
+
+    /* start on an ellipse around the portrait */
+    const cx = sr.width / 2, cy = sr.height * .45;
+    const ang = rand(0, Math.PI * 2);
+    const rx = sr.width * rand(.55, .78), ry = sr.height * rand(.42, .6);
+    const sx = cx + Math.cos(ang) * rx, sy = cy + Math.sin(ang) * ry;
+
+    const el = document.createElement('div');
+    el.className = 'fly';
+    el.innerHTML = NUG_SVG;
+    el.style.left = (sx - W / 2) + 'px';
+    el.style.top = (sy - H / 2) + 'px';
+    layer.appendChild(el);
+
+    /* orbit in, then dive into the mouth */
+    const spin = rand(160, 320) * (Math.random() < .5 ? -1 : 1);
+    const duration = rand(1100, 1700);
+
+    /* curved approach: midpoint offset perpendicular to the dive line */
+    const mp0 = mouthPoint();
+    const len = Math.hypot(mp0.x - sx, mp0.y - sy) || 1;
+    const bow = rand(40, 110) * (Math.random() < .5 ? -1 : 1);
+    const mx = (mp0.x - sx) * .45 + (-(mp0.y - sy) / len) * bow;
+    const my = (mp0.y - sy) * .45 + ((mp0.x - sx) / len) * bow;
+
+    /* the mouth moves with the squash animation, so recompute the last
+       leg every frame and drive the transform from JS */
+    const start = performance.now();
+    function step(now){
+      const t = Math.min(1, (now - start) / duration);
+      const mp = mouthPoint();
+      const dx = mp.x - sx, dy = mp.y - sy;
+      let x, y, rot, sc, op;
+      if (t < .45){
+        const k = t / .45, e = k * k * (3 - 2 * k);
+        x = mx * e; y = my * e;
+        rot = spin * .5 * e; sc = .6 + .55 * e; op = Math.min(1, k * 2.5);
+      } else {
+        const k = (t - .45) / .55, e = k * k;
+        x = mx + (dx - mx) * e; y = my + (dy - my) * e;
+        rot = spin * (.5 + .5 * e); sc = 1.15 - .8 * e; op = 1;
+      }
+      el.style.transform = `translate(${x}px,${y}px) rotate(${rot}deg) scale(${sc})`;
+      el.style.opacity = op;
+      if (t < 1){ requestAnimationFrame(step); return; }
+      el.remove();
+      const p = mouthPoint();
+      mouth.classList.add('open');
+      crumb(p.x + rand(-8, 8), p.y + rand(-4, 4));
+      crumb(p.x + rand(-12, 12), p.y + rand(-6, 6));
+      setTimeout(() => mouth.classList.remove('open'), 130);
+    }
+    requestAnimationFrame(step);
+  }
+
+  /* keep a few in the air */
+  function spawn(){
+    if (!reduced.matches && !document.hidden) fly();
+    setTimeout(spawn, rand(420, 900));
+  }
+  setTimeout(spawn, 350);
+})();
+</script>
+</body>
+</html>
